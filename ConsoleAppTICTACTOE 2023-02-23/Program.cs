@@ -119,7 +119,6 @@ namespace TICTACTOEnewversion
                     || ((board.cells[2, 0] == player[0]) && (board.cells[2, 0] == player[1]))
                     || ((board.cells[2, 1] == player[0]) && (board.cells[2, 1] == player[1]))
                     || ((board.cells[2, 2] == player[0]) && (board.cells[2, 2] == player[1])))
-
                 {
                     Console.WriteLine("Press The Number Again : ");
                 }
@@ -129,11 +128,11 @@ namespace TICTACTOEnewversion
         class AIcomputer : Program
         {
 
-            public static int[] score = { };
+            public static int[] score = {0,0,0,0,0,0,0,0};
             public int Currentplayer = 1;
             public int[] Minimax(Board board, Game game, int depth, char player)
             {
-                int[] move = new int[3] ;
+                int[] move = new int[3] { 0, 0, 0 } ;
                 if (depth == 0)
                 {
                     move[0] = Score(board, game);
@@ -218,15 +217,13 @@ namespace TICTACTOEnewversion
                 {
                     return true;
                 }
-
-
                     return false;
             }
 
             public int Score(Board board, Game game)
             {
-                if (ISwin(board, game , 'X')) { return 1; }
-                if (ISwin(board, game , 'O')) { return -1; }
+                if (ISwin(board, game , 'X')) { return 1;}
+                if (ISwin(board, game , 'O')) { return -1;}
                 else { return 0; }
             }
 
@@ -235,7 +232,7 @@ namespace TICTACTOEnewversion
         {   
             int inputX = 0;
             int depth =0;
-            char player='O' ;
+            char player = 'O' ;
             int CurrentPlayer = 0;
             Game game = new Game();
             Board board = new Board();
