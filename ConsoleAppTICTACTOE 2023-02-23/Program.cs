@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Media;
-using System.Security.Cryptography.X509Certificates;
+using System.Xml.Linq;
+using System.Runtime.Remoting.Channels;
+using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.Collections.Specialized;
 
 namespace TICTACTOEnewversion
 {
@@ -9,6 +14,8 @@ namespace TICTACTOEnewversion
     {
         class Board : Program
         {
+            static char Player = 'X';
+            static char Computer = 'O';
             public char[,] cells = new char[3, 3]
             {
                 {' ' ,' ', ' '},
@@ -28,34 +35,34 @@ namespace TICTACTOEnewversion
                 Console.WriteLine("--------------");
                 Console.ReadLine();
             }
-            public void Winner(Game game, char player)
+            public void Winner()
             {
-                if (((cells[0, 0] == game.player[0]) && (cells[0, 1] == game.player[0]) && (cells[0, 2] == game.player[0]))
-                    || ((cells[1, 0] == game.player[0]) && (cells[1, 1] == game.player[0]) && (cells[1, 2] == game.player[0]))
-                    || ((cells[2, 0] == game.player[0]) && (cells[2, 1] == game.player[0]) && (cells[2, 2] == game.player[0]))
-                    || ((cells[0, 0] == game.player[0]) && (cells[1, 0] == game.player[0]) && (cells[2, 0] == game.player[0]))
-                    || ((cells[0, 1] == game.player[0]) && (cells[1, 1] == game.player[0]) && (cells[1, 2] == game.player[0]))
-                    || ((cells[0, 2] == game.player[0]) && (cells[1, 2] == game.player[0]) && (cells[2, 2] == game.player[0]))
-                    || ((cells[0, 2] == game.player[0]) && (cells[1, 1] == game.player[0]) && (cells[2, 0] == game.player[0]))
-                    || ((cells[0, 0] == game.player[0]) && (cells[1, 1] == game.player[0]) && (cells[2, 2] == game.player[0])))
+                if (((cells[0, 0] == Player) && (cells[0, 1] == Player) && (cells[0, 2] == Player))
+                    || ((cells[1, 0] == Player) && (cells[1, 1] == Player) && (cells[1, 2] == Player))
+                    || ((cells[2, 0] == Player) && (cells[2, 1] == Player) && (cells[2, 2] == Player))
+                    || ((cells[0, 0] == Player) && (cells[1, 0] == Player) && (cells[2, 0] == Player))
+                    || ((cells[0, 1] == Player) && (cells[1, 1] == Player) && (cells[2, 1] == Player))
+                    || ((cells[0, 2] == Player) && (cells[1, 2] == Player) && (cells[2, 2] == Player))
+                    || ((cells[0, 2] == Player) && (cells[1, 1] == Player) && (cells[2, 0] == Player))
+                    || ((cells[0, 0] == Player) && (cells[1, 1] == Player) && (cells[2, 2] == Player)))
                 {
                     Console.WriteLine("!!!!!!!!!! Congratulation X is the WINNER !!!!!!!!!");
-                    Console.WriteLine("Let Play Again !!! ");
+                    Console.WriteLine(" Let Play Again !!! ");
                     Console.ReadKey();
                     ResetBoard();
 
                 }
-                if (((cells[0, 0] == game.player[1]) && (cells[0, 1] == game.player[1]) && (cells[0, 2] == game.player[1]))
-                    || ((cells[1, 0] == game.player[1]) && (cells[1, 1] == game.player[1]) && (cells[1, 2] == game.player[1]))
-                    || ((cells[2, 0] == game.player[1]) && (cells[2, 1] == game.player[1]) && (cells[2, 2] == game.player[1]))
-                    || ((cells[0, 0] == game.player[1]) && (cells[1, 0] == game.player[1]) && (cells[2, 0] == game.player[1]))
-                    || ((cells[0, 1] == game.player[1]) && (cells[1, 1] == game.player[1]) && (cells[1, 2] == game.player[1]))
-                    || ((cells[0, 2] == game.player[1]) && (cells[1, 2] == game.player[1]) && (cells[2, 2] == game.player[1]))
-                    || ((cells[0, 2] == game.player[1]) && (cells[1, 1] == game.player[1]) && (cells[2, 0] == game.player[1]))
-                    || ((cells[0, 0] == game.player[1]) && (cells[1, 1] == game.player[1]) && (cells[2, 2] == game.player[1])))
+                if (((cells[0, 0] == Computer) && (cells[0, 1] == Computer) && (cells[0, 2] == Computer))
+                    || ((cells[1, 0] == Computer) && (cells[1, 1] == Computer) && (cells[1, 2] == Computer))
+                    || ((cells[2, 0] == Computer) && (cells[2, 1] == Computer) && (cells[2, 2] == Computer))
+                    || ((cells[0, 0] == Computer) && (cells[1, 0] == Computer) && (cells[2, 0] == Computer))
+                    || ((cells[0, 1] == Computer) && (cells[1, 1] == Computer) && (cells[2, 1] == Computer))
+                    || ((cells[0, 2] == Computer) && (cells[1, 2] == Computer) && (cells[2, 2] == Computer))
+                    || ((cells[0, 2] == Computer) && (cells[1, 1] == Computer) && (cells[2, 0] == Computer))
+                    || ((cells[0, 0] == Computer) && (cells[1, 1] == Computer) && (cells[2, 2] == Computer)))
                 {
                     Console.WriteLine("!!!!!!!!!! Congratulation O is the WINNER !!!!!!!!!");
-                    Console.WriteLine("Let Play Again !!! ");
+                    Console.WriteLine(" Let Play Again !!! ");
                     Console.ReadKey();
                     ResetBoard();
                 }
@@ -75,12 +82,12 @@ namespace TICTACTOEnewversion
 
         class Game : Program
         {
-            public char[] player = { 'X', 'O' };
-            public int CurrentPlayer = 0;
-            public void PlayerMove(Board board, int inputX)
+            static char Player = 'X';
+            static char Computer = 'O';
+            public void PlayerMove(Board board,int inputX)
             {
                 bool validX = false;
-                Console.WriteLine(" Player X is your choice : \n ", CurrentPlayer);
+                Console.WriteLine(" Player X is your choice : \n ");
                 while (!validX)
                 {
                     validX = int.TryParse(Console.ReadLine(), out inputX);
@@ -92,33 +99,33 @@ namespace TICTACTOEnewversion
                 switch (inputX)
                 {
                     case 0:
-                        board.cells[0, 0] = player[CurrentPlayer]; break;
+                        board.cells[0, 0] = Player; break;
                     case 1:
-                        board.cells[0, 1] = player[CurrentPlayer]; break;
+                        board.cells[0, 1] = Player; break;
                     case 2:
-                        board.cells[0, 2] = player[CurrentPlayer]; break;
+                        board.cells[0, 2] = Player; break;
                     case 3:
-                        board.cells[1, 0] = player[CurrentPlayer]; break;
+                        board.cells[1, 0] = Player; break;
                     case 4:
-                        board.cells[1, 1] = player[CurrentPlayer]; break;
+                        board.cells[1, 1] = Player; break;
                     case 5:
-                        board.cells[1, 2] = player[CurrentPlayer]; break;
+                        board.cells[1, 2] = Player; break;
                     case 6:
-                        board.cells[2, 0] = player[CurrentPlayer]; break;
+                        board.cells[2, 0] = Player; break;
                     case 7:
-                        board.cells[2, 1] = player[CurrentPlayer]; break;
+                        board.cells[2, 1] = Player; break;
                     case 8:
-                        board.cells[2, 2] = player[CurrentPlayer]; break;
+                        board.cells[2, 2] = Player; break;
                 }
-                if (((board.cells[0, 0] == player[0]) && (board.cells[0, 0] == player[1])) 
-                    || ((board.cells[0, 1] == player[0]) && (board.cells[0, 1] == player[1]))
-                    || ((board.cells[0, 2] == player[0]) && (board.cells[0, 2] == player[1]))
-                    || ((board.cells[1, 0] == player[0]) && (board.cells[1, 0] == player[1]))
-                    || ((board.cells[1, 1] == player[0]) && (board.cells[1, 1] == player[1]))
-                    || ((board.cells[1, 2] == player[0]) && (board.cells[1, 2] == player[1]))
-                    || ((board.cells[2, 0] == player[0]) && (board.cells[2, 0] == player[1]))
-                    || ((board.cells[2, 1] == player[0]) && (board.cells[2, 1] == player[1]))
-                    || ((board.cells[2, 2] == player[0]) && (board.cells[2, 2] == player[1])))
+                if (((board.cells[0, 0] == Player) && (board.cells[0, 0] == Computer))
+                    || ((board.cells[0, 1] == Player) && (board.cells[0, 1] == Computer))
+                    || ((board.cells[0, 2] == Player) && (board.cells[0, 2] == Computer))
+                    || ((board.cells[1, 0] == Player) && (board.cells[1, 0] == Computer))
+                    || ((board.cells[1, 1] == Player) && (board.cells[1, 1] == Computer))
+                    || ((board.cells[1, 2] == Player) && (board.cells[1, 2] == Computer))
+                    || ((board.cells[2, 0] == Player) && (board.cells[2, 0] == Computer))
+                    || ((board.cells[2, 1] == Player) && (board.cells[2, 1] == Computer))
+                    || ((board.cells[2, 2] == Player) && (board.cells[2, 2] == Computer)))
                 {
                     Console.WriteLine("Press The Number Again : ");
                 }
@@ -127,131 +134,183 @@ namespace TICTACTOEnewversion
 
         class AIcomputer : Program
         {
+            public int row;
+            public int col;
 
-            public static int[] score = {0,0,0,0,0,0,0,0};
-            public int Currentplayer = 1;
-            public int[] Minimax(Board board, Game game, int depth, char player)
+            static char Player = 'X';
+            static char Computer = 'O';
+
+            static bool TheMoveLeft(Board board)
             {
-                int[] move = new int[3] { 0, 0, 0 } ;
-                if (depth == 0)
+                for (int i = 0; i < 3; i++)
                 {
-                    move[0] = Score(board, game);
-                    return move;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (board.cells[i, j] == ' ')
+                        {
+                            return true;
+                        }
+                    }
                 }
-                if (player == 'X')
+                return false;
+            }
+
+            static int Count(Board b)
+            {
+                for (int row = 0; row < 3; row++)
                 {
-                    move[0] = int.MaxValue;
+                    if (b.cells[row, 0] == b.cells[row, 1] && b.cells[row, 1] == b.cells[row, 2])
+                    {
+                        if (b.cells[row, 0] == Player)
+                        {
+                            return +10;
+                        }
+                        else if (b.cells[row, 0] == Computer)
+                        {
+                            return -10;
+                        }
+                    }
+                    if (b.cells[row, 0] == Player && b.cells[row, 1] ==Player && b.cells[row, 2]==Player)
+                    {
+                        return +20;
+                    }
+                    else(b.cells[row, 0] == Computer && b.cells[row, 1] == Computer && b.cells[row, 2] == Computer){
+                        return -20;
+                    }
+                }
+                for (int col =0; col < 3; col++)
+                {
+                    if (b.cells[0,col] == b.cells[1, col] && b.cells[1, col] == b.cells[2, col])
+                    {
+                        if (b.cells[0,col] == Player)
+                        {
+                            return +10;
+                        }
+                        else if (b.cells[0,col] == Computer)
+                        {
+                            return -10;
+                        }
+                    }
+                }
+                if (b.cells[0, 0] == b.cells[1, 1] && b.cells[1,1]== b.cells[2, 2])
+                {
+                    if (b.cells[0, 0] == Player)
+                    {
+                        return +10;
+                    }
+                    else if (b.cells[0, 0] == Computer)
+                    {
+                        return -10;
+                    }
+                }
+                if (b.cells[0, 2] == b.cells[1, 1] && b.cells[1, 1] == b.cells[2, 0])
+                {
+                    if (b.cells[0, 2] == Player)
+                    {
+                        return +10;
+                    }
+                    else if (b.cells[0, 2] == Computer)
+                    {
+                        return -10;
+                    }
+                }
+                return 0;
+            }
+            static int MiniMax(Board board, int depth, bool IsMax)
+            {
+                int score = Count(board);
+                if (score == 10) return score;
+                else if (score == -10) return score;
+                else if (TheMoveLeft(board) == false) return 0;
+                else if (IsMax)
+                {
+                    int best = int.MinValue;
                     for (int i = 0; i < 3; i++)
                     {
                         for (int j = 0; j < 3; j++)
                         {
                             if (board.cells[i, j] == ' ')
                             {
-                                board.cells[i, j] = 'X';
-                                int[] temp = Minimax(board, game, depth - 1, 'O');
-                                if (temp[0] > move[0])
-                                {
-                                    move[0] = temp[0];
-                                    move[1] = i;
-                                    move[2] = j;
-                                }
+                                board.cells[i, j] = Player;
+                                best = Math.Max(best, MiniMax(board, depth + 1, !IsMax));
                                 board.cells[i, j] = ' ';
                             }
                         }
                     }
-                return move;
+                    return best;
                 }
-                else 
+                else
                 {
-                    move[0] = int.MinValue;
+                    int best = int.MaxValue;
                     for (int i = 0; i < 3; i++)
                     {
                         for (int j = 0; j < 3; j++)
                         {
                             if (board.cells[i, j] == ' ')
                             {
-                                board.cells[i, j] = 'O';
-                                int[] temp = Minimax(board, game, depth - 1 , 'X');
-                                if (temp[0] > move[0])
-                                {
-                                    move[0] = temp[0];
-                                    move[1] = i;
-                                    move[2] = j;
-                                }
+                                board.cells[i, j] = Computer;
+                                best = Math.Min(best, MiniMax(board, depth + 1, !IsMax));
                                 board.cells[i, j] = ' ';
                             }
                         }
                     }
-                return move;
+                    return best;
                 }
             }
 
-            public void AIMove(Game game, Board board)
+            static AIcomputer FindBestMove(Board board, Game game)
             {
-                int[] move = new int[2];
-                move = Minimax( board,game,6, game.player[Currentplayer % 2]).Skip(1).Take(2).ToArray();
-                board.cells[move[0], move[1]] = game.player[Currentplayer % 2];
-            }
 
-            public bool ISwin(Board board,Game game, char player)
-            {
-                if (((board.cells[0, 0] == game.player[0]) && (board.cells[0, 1] == game.player[0]) && (board.cells[0, 2] == game.player[0]))
-                    || ((board.cells[1, 0] == game.player[0]) && (board.cells[1, 1] == game.player[0]) && (board.cells[1, 2] == game.player[0]))
-                    || ((board.cells[2, 0] == game.player[0]) && (board.cells[2, 1] == game.player[0]) && (board.cells[2, 2] == game.player[0]))
-                    || ((board.cells[0, 0] == game.player[0]) && (board.cells[1, 0] == game.player[0]) && (board.cells[2, 0] == game.player[0]))
-                    || ((board.cells[0, 1] == game.player[0]) && (board.cells[1, 1] == game.player[0]) && (board.cells[1, 2] == game.player[0]))
-                    || ((board.cells[0, 2] == game.player[0]) && (board.cells[1, 2] == game.player[0]) && (board.cells[2, 2] == game.player[0]))
-                    || ((board.cells[0, 2] == game.player[0]) && (board.cells[1, 1] == game.player[0]) && (board.cells[2, 0] == game.player[0]))
-                    || ((board.cells[0, 0] == game.player[0]) && (board.cells[1, 1] == game.player[0]) && (board.cells[2, 2] == game.player[0])))
+                int bestVal = int.MinValue;
+                AIcomputer bestMove = new AIcomputer();
+                bestMove.row = -1;
+                bestMove.col = -1;
+                for (int i = 0; i < 3; i++)
                 {
-                    return true;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (board.cells[i, j] == ' ')
+                        {
+                            board.cells[i, j] = Player;
+                            int moveVal = MiniMax(board, 0, false);
+                            board.cells[i, j] = ' ';
+                            if (moveVal > bestVal)
+                            {
+                                bestMove.row = i;
+                                bestMove.col = j;
+                                bestVal = moveVal;
+                                Console.WriteLine("bP:"+bestVal);
+                            }
+                        }
+                    }
                 }
-                if (((board.cells[0, 0] == game.player[1]) && (board.cells[0, 1] == game.player[1]) && (board.cells[0, 2] == game.player[1]))
-                    || ((board.cells[1, 0] == game.player[1]) && (board.cells[1, 1] == game.player[1]) && (board.cells[1, 2] == game.player[1]))
-                    || ((board.cells[2, 0] == game.player[1]) && (board.cells[2, 1] == game.player[1]) && (board.cells[2, 2] == game.player[1]))
-                    || ((board.cells[0, 0] == game.player[1]) && (board.cells[1, 0] == game.player[1]) && (board.cells[2, 0] == game.player[1]))
-                    || ((board.cells[0, 1] == game.player[1]) && (board.cells[1, 1] == game.player[1]) && (board.cells[1, 2] == game.player[1]))
-                    || ((board.cells[0, 2] == game.player[1]) && (board.cells[1, 2] == game.player[1]) && (board.cells[2, 2] == game.player[1]))
-                    || ((board.cells[0, 2] == game.player[1]) && (board.cells[1, 1] == game.player[1]) && (board.cells[2, 0] == game.player[1]))
-                    || ((board.cells[0, 0] == game.player[1]) && (board.cells[1, 1] == game.player[1]) && (board.cells[2, 2] == game.player[1])))
+                return bestMove;
+            }
+
+
+            static void Main(string[] args)
+            {
+                int inputX = 0;
+                Game game = new Game();
+                Board board = new Board();
+                AIcomputer ai = new AIcomputer();
+                while (true)
                 {
-                    return true;
+                    board.DrawBoard();
+                    game.PlayerMove(board, inputX);
+                    AIcomputer bestMove = FindBestMove(board, game);
+                    board.cells[bestMove.row, bestMove.col] = Computer;
+                    board.Winner();
                 }
-                    return false;
-            }
-
-            public int Score(Board board, Game game)
-            {
-                if (ISwin(board, game , 'X')) { return 1;}
-                if (ISwin(board, game , 'O')) { return -1;}
-                else { return 0; }
-            }
-
-        }
-        static void Main(string[] args)
-        {   
-            int inputX = 0;
-            int depth =0;
-            char player = 'O' ;
-            int CurrentPlayer = 0;
-            Game game = new Game();
-            Board board = new Board();
-            AIcomputer ai = new AIcomputer();
-            while (true)
-            {
-                board.DrawBoard();
-                game.PlayerMove(board, inputX);
-                CurrentPlayer = (CurrentPlayer + 1) % 2;
-                ai.AIMove(game, board);
-                CurrentPlayer = (CurrentPlayer + 1) % 2;
-                ai.Minimax(board, game, depth, player);
-                ai.Score(board,game);
-                ai.ISwin(board,game, player);
-                board.Winner(game,player);
             }
         }
     }
 }
+
+
+
+
+
 
 
 
